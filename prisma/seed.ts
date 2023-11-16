@@ -38,7 +38,25 @@ async function main() {
     });
   }
 
-  console.log('seed: ', { orderStatusResponse, drinksResponse });
+  const fundStockResponse = {};
+  const fundStocks = [
+    { fundType: 'Coin', stock: 100 },
+    { fundType: 'Cash', stock: 200 },
+  ];
+  for (let i = 0; i < fundStocks.length; i++) {
+    const fundStock = fundStocks[i];
+    fundStockResponse[fundStock.fundType] = await prisma.fundStock.upsert({
+      where: { fundType: fundStock.fundType },
+      update: {},
+      create: fundStock,
+    });
+  }
+
+  console.log('seed: ', {
+    orderStatusResponse,
+    drinksResponse,
+    fundStockResponse,
+  });
 }
 
 main()
