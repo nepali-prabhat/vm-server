@@ -26,9 +26,9 @@ async function main() {
 
   const inventoriesResponse = {};
   const inventories = [
-    { name: 'Coke', price: 20, stock: 10 },
-    { name: 'Pepsi', price: 25, stock: 10 },
-    { name: 'Dew', price: 30, stock: 10 },
+    { name: 'Coke', price: 20, stock: 10, imageName: 'coke.png' },
+    { name: 'Pepsi', price: 25, stock: 10, imageName: 'pepsi.png' },
+    { name: 'Dew', price: 30, stock: 10, imageName: 'dew.png' },
   ];
   for (let i = 0; i < inventories.length; i++) {
     const inventory = inventories[i];
@@ -43,6 +43,8 @@ async function main() {
   const fundStocks = [
     { fundType: FUND_TYPE.coin, stock: 100 },
     { fundType: FUND_TYPE.cash, stock: 200 },
+    { fundType: FUND_TYPE.customerCoin, stock: 0 },
+    { fundType: FUND_TYPE.customerCash, stock: 0 },
   ];
   for (let i = 0; i < fundStocks.length; i++) {
     const fundStock = fundStocks[i];
