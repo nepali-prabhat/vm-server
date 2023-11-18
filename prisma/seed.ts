@@ -1,3 +1,4 @@
+import { FUND_TYPE } from './../src/constants';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -23,25 +24,25 @@ async function main() {
     });
   }
 
-  const drinksResponse = {};
-  const drinks = [
+  const inventoriesResponse = {};
+  const inventories = [
     { name: 'Coke', price: 20, stock: 10 },
     { name: 'Pepsi', price: 25, stock: 10 },
     { name: 'Dew', price: 30, stock: 10 },
   ];
-  for (let i = 0; i < drinks.length; i++) {
-    const drink = drinks[i];
-    drinksResponse[drink.name] = await prisma.drink.upsert({
-      where: { name: drink.name },
+  for (let i = 0; i < inventories.length; i++) {
+    const inventory = inventories[i];
+    inventoriesResponse[inventory.name] = await prisma.inventory.upsert({
+      where: { name: inventory.name },
       update: {},
-      create: drink,
+      create: inventory,
     });
   }
 
   const fundStockResponse = {};
   const fundStocks = [
-    { fundType: 'Coin', stock: 100 },
-    { fundType: 'Cash', stock: 200 },
+    { fundType: FUND_TYPE.coin, stock: 100 },
+    { fundType: FUND_TYPE.cash, stock: 200 },
   ];
   for (let i = 0; i < fundStocks.length; i++) {
     const fundStock = fundStocks[i];
@@ -54,7 +55,7 @@ async function main() {
 
   console.log('seed: ', {
     orderStatusResponse,
-    drinksResponse,
+    drinksResponse: inventoriesResponse,
     fundStockResponse,
   });
 }

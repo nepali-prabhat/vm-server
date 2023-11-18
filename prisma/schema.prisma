@@ -10,13 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Drink {
-  id       Int     @id @default(autoincrement())
-  name     String  @unique
-  price    Float
-  stock    Int
-  imageUrl String?
-  order    Order[]
+model Inventory {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique
+  price     Float
+  stock     Int
+  imageName String?
+  order     Order[]
 }
 
 model FundStock {
@@ -26,19 +26,26 @@ model FundStock {
 
 model Order {
   id          Int         @id @default(autoincrement())
-  drink       Drink       @relation(fields: [drinkId], references: [id])
-  drinkId     Int
+  inventory   Inventory   @relation(fields: [inventoryId], references: [id])
+  inventoryId Int
   status      OrderStatus @relation(fields: [orderStatus], references: [status])
   orderStatus String
-  purchase    Purchase?
+
+  purchase Purchase?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Purchase {
-  id      Int    @id @default(autoincrement())
-  order   Order  @relation(fields: [orderId], references: [id])
-  orderId Int    @unique
-  coins   Int?   @default(0)
-  cash    Float? @default(0.00)
+  id      Int   @id @default(autoincrement())
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int   @unique
+  coins   Int?  @default(0)
+  cash    Int?  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Because SQlite doesn't support enums, we create a table
