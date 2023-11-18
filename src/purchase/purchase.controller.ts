@@ -10,7 +10,7 @@ import {
 import { PurchaseService } from './purchase.service';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { OrderService } from 'src/order/order.service';
-import { ORDER_STATUS } from 'src/constants';
+import { FundType, ORDER_STATUS, FUND_TYPE } from 'src/constants';
 import { FundStockService } from 'src/fundStock/fundStock.service';
 import { Observable } from 'rxjs';
 import { Change } from './dto/change.dto';
@@ -25,6 +25,7 @@ import {
   PurchaseStartContract,
   PurchaseSuccessContract,
 } from './dto/purchase-sse-contracts.dto';
+import { InventoryService } from 'src/inventory/inventory.service';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -32,6 +33,7 @@ export class PurchaseController {
     private readonly purchaseService: PurchaseService,
     private readonly orderService: OrderService,
     private readonly fundStockService: FundStockService,
+    private readonly inventoryService: InventoryService,
   ) {}
 
   @Sse('sse')
@@ -42,7 +44,7 @@ export class PurchaseController {
   @Post()
   async create(@Body() createPurchaseDto: CreatePurchaseDto) {
     const inputChange = new Change(
-      createPurchaseDto.coins,
+      createPurchaseDto.coin,
       createPurchaseDto.cash,
     );
     try {
@@ -54,7 +56,7 @@ export class PurchaseController {
       const inventory = order.inventory;
       await this.handleStockValidation(inventory.stock, order.id, inputChange);
 
-      const inputMoney = createPurchaseDto.cash + createPurchaseDto.coins;
+      const inputMoney = createPurchaseDto.cash + createPurchaseDto.coin;
       const inventoryPrice = inventory.price;
       await this.handleInputMoneyValidation(
         inputMoney,
@@ -63,12 +65,16 @@ export class PurchaseController {
         inputChange,
       );
 
+      const fundStock = await this.fundStockService.getFundStock();
+      // console.log('fund stock: ', fundStock);
+
       const change = this.purchaseService.calculateChange(
         inputMoney,
         inventoryPrice,
+        fundStock,
       );
+      // console.log('change: ', change);
 
-      const fundStock = await this.fundStockService.getFundStock();
       await this.handleFundStockValidation(
         fundStock,
         change,
@@ -80,7 +86,20 @@ export class PurchaseController {
         order.id,
         createPurchaseDto,
       );
+      await this.inventoryService.updateStock(
+        order.inventoryId,
+        inventory.stock - 1,
+      );
+      await this.fundStockService.updateGivenFundStock({
+        [FUND_TYPE.cash]: fundStock.cash - change.cash,
+        [FUND_TYPE.coin]: fundStock.coin - change.coin,
+        [FUND_TYPE.customerCash]:
+          fundStock.customerCash + createPurchaseDto.cash,
+        [FUND_TYPE.customerCoin]:
+          fundStock.customerCoin + createPurchaseDto.coin,
+      });
       await this.orderService.updateStatus(order.id, ORDER_STATUS.success);
+
       this.emitPurchaseEvent(new PurchaseSuccessContract(change));
       return { purchase, change };
     } catch (e) {
@@ -131,7 +150,7 @@ export class PurchaseController {
   }
 
   private async handleFundStockValidation(
-    fundStock: Record<'coin' | 'cash', number>,
+    fundStock: Record<FundType, number>,
     change: Change,
     orderId: number,
     inputChange: Change,
@@ -142,7 +161,7 @@ export class PurchaseController {
       throw new NotFoundException('Out of cash');
     }
 
-    if (fundStock.coin < change.coins) {
+    if (fundStock.coin < change.coin) {
       await this.orderService.updateStatus(orderId, ORDER_STATUS.outOfCoins);
       this.emitPurchaseEvent(new OutOfCoinsContract(inputChange));
       throw new NotFoundException('Out of coins');

@@ -1,6 +1,10 @@
 export class Change {
   constructor(
-    public coins: number,
+    public coin: number,
     public cash: number,
   ) {}
+
+  public getTotalChange() {
+    return this.coin + this.cash;
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClient } from '@prisma/client';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
-import { CASH_UNIT } from 'src/constants';
+import { CASH_UNIT, FundType } from 'src/constants';
 import { Change } from './dto/change.dto';
 import { SseService } from 'src/sse/sse.service';
 import { PurchaseSseContracts } from './dto/purchase-sse-contracts.dto';
@@ -27,7 +27,7 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
   async create(orderId: number, dto: CreatePurchaseDto) {
     return this.purchaseModel.create({
       data: {
-        coins: dto.coins,
+        coins: dto.coin,
         cash: dto.cash,
         orderId,
       },
@@ -41,10 +41,26 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
     });
   }
 
-  calculateChange(inputMoney: number, price: number) {
+  calculateChange(
+    inputMoney: number,
+    price: number,
+    fundStock: Record<FundType, number>,
+  ) {
     const totalChange = inputMoney - price;
     const cashChange = Math.floor(totalChange / CASH_UNIT);
     const coinChange = totalChange % CASH_UNIT;
-    return new Change(coinChange, cashChange * CASH_UNIT);
+
+    const change = new Change(coinChange, cashChange * CASH_UNIT);
+
+    if (fundStock.cash < change.cash) {
+      // check if by giving all the cash, we have enough coins to return the change
+      const totalMoneyToReturn = change.getTotalChange();
+      const coinsRequired = totalMoneyToReturn - fundStock.cash;
+      if (fundStock.coin >= coinsRequired) {
+        return new Change(coinsRequired, fundStock.cash);
+      }
+    }
+
+    return change;
   }
 }

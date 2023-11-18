@@ -1,4 +1,4 @@
 export class CreatePurchaseDto {
-  coins: number;
+  coin: number;
   cash: number;
 }

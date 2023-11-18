@@ -29,6 +29,11 @@ export class OrderController {
     return pending;
   }
 
+  @Get('/debug/all')
+  async getAllOrders() {
+    return this.orderService.findAll();
+  }
+
   @Get('/debug/:orderId')
   async getOrder(@Param('orderId', ParseIntPipe) orderId: number) {
     return this.orderService.getOrder(orderId);
