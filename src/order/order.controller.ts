@@ -25,9 +25,9 @@ export class OrderController {
     return pending;
   }
 
-  @Post('/create-for/:inventoryId')
+  @Post('/inventory/:inventoryId')
   async createOrder(@Param('inventoryId', ParseIntPipe) inventoryId: number) {
-    const pendingOrder = await this.orderService.timeoutPendingOrderOrReturn();
+    const pendingOrder = await this.orderService.timeoutOrGetPendingOrder();
     if (pendingOrder) {
       throw new ConflictException();
     }
@@ -37,7 +37,7 @@ export class OrderController {
 
   @Put('/updatePending')
   async updatePendingOrder(@Body() dto: UpdatePendingOrderDto) {
-    const pendingOrder = await this.orderService.timeoutPendingOrderOrReturn();
+    const pendingOrder = await this.orderService.timeoutOrGetPendingOrder();
     if (pendingOrder) {
       const response = await this.orderService.updateStatus(
         pendingOrder.id,

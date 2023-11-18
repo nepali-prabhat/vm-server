@@ -29,7 +29,7 @@ export class OrderService {
     return secondsDiff > 60;
   }
 
-  async timeoutPendingOrderOrReturn() {
+  async timeoutOrGetPendingOrder() {
     const pendingOrder = await this.getPendingOrder();
     if (pendingOrder) {
       const hasTimedout = this.hasOrderTimedout(pendingOrder.createdAt);

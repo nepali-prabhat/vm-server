@@ -21,7 +21,7 @@ export class PurchaseController {
 
   @Post()
   async create(@Body() createPurchaseDto: CreatePurchaseDto) {
-    const order = await this.orderService.timeoutPendingOrderOrReturn();
+    const order = await this.orderService.timeoutOrGetPendingOrder();
     this.handleOrderValidation(order);
 
     const inventory = order.inventory;
@@ -60,9 +60,7 @@ export class PurchaseController {
   private handleOrderValidation(
     order:
       | undefined
-      | Awaited<
-          ReturnType<typeof this.orderService.timeoutPendingOrderOrReturn>
-        >,
+      | Awaited<ReturnType<typeof this.orderService.timeoutOrGetPendingOrder>>,
   ) {
     if (!order) {
       // TODO: send event to dispense entered money
