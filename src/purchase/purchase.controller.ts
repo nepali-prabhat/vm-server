@@ -26,6 +26,7 @@ import {
   PurchaseSuccessContract,
 } from './dto/purchase-sse-contracts.dto';
 import { InventoryService } from 'src/inventory/inventory.service';
+import { OrderStatus } from '@prisma/client';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -98,9 +99,7 @@ export class PurchaseController {
         [FUND_TYPE.customerCoin]:
           fundStock.customerCoin + createPurchaseDto.coin,
       });
-      await this.orderService.updateStatus(order.id, ORDER_STATUS.success);
-
-      this.emitPurchaseEvent(new PurchaseSuccessContract(change));
+      await this.orderService.updateStatus(order.id, OrderStatus.SUCCESS);
       return { purchase, change };
     } catch (e) {
       this.emitPurchaseEvent(new PurchaseFailedContract(inputChange));
@@ -129,8 +128,8 @@ export class PurchaseController {
     orderId: number,
     inputChange: Change,
   ) {
-    if (stock < 0) {
-      await this.orderService.updateStatus(orderId, ORDER_STATUS.outOfStock);
+    if (stock <= 0) {
+      await this.orderService.updateStatus(orderId, OrderStatus.OUT_OF_STOCK);
       this.emitPurchaseEvent(new OutOfStockContract(inputChange));
       throw new NotFoundException(`Out of stock`);
     }
@@ -155,14 +154,14 @@ export class PurchaseController {
     orderId: number,
     inputChange: Change,
   ) {
-    if (fundStock.cash < change.cash) {
-      await this.orderService.updateStatus(orderId, ORDER_STATUS.outOfCash);
+    if (fundStock.Cash < change.cash) {
+      await this.orderService.updateStatus(orderId, OrderStatus.OUT_OF_CASH);
       this.emitPurchaseEvent(new OutOfCashContract(inputChange));
       throw new NotFoundException('Out of cash');
     }
 
-    if (fundStock.coin < change.coin) {
-      await this.orderService.updateStatus(orderId, ORDER_STATUS.outOfCoins);
+    if (fundStock.Coin < change.coin) {
+      await this.orderService.updateStatus(orderId, OrderStatus.OUT_OF_COINS);
       this.emitPurchaseEvent(new OutOfCoinsContract(inputChange));
       throw new NotFoundException('Out of coins');
     }

@@ -28,13 +28,22 @@ model Order {
   id          Int         @id @default(autoincrement())
   inventory   Inventory   @relation(fields: [inventoryId], references: [id])
   inventoryId Int
-  status      OrderStatus @relation(fields: [orderStatus], references: [status])
-  orderStatus String
+  status      OrderStatus @default(PENDING)
 
   purchase Purchase?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  SUCCESS
+  CANCELLED
+  TIMEOUT
+  OUT_OF_COINS
+  OUT_OF_CASH
+  OUT_OF_STOCK
 }
 
 model Purchase {
@@ -46,14 +55,4 @@ model Purchase {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-// Because SQlite doesn't support enums, we create a table
-// Values will be: 
-// PENDING, SUCCESS,
-// CANCELLED, TIMEOUT,
-// INSUFFICIENT_COIN, INSUFFICIENT_CASH
-model OrderStatus {
-  status String  @id
-  Order  Order[]
 }

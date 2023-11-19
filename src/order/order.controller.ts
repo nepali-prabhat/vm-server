@@ -15,6 +15,7 @@ import {
   OrderPendingContract,
   OrderSseContracts,
 } from './dto/order-sse-contracts.dto';
+import { OrderStatus } from '@prisma/client';
 
 @Controller('order')
 export class OrderController {
@@ -50,13 +51,13 @@ export class OrderController {
     return this.orderService.createOrder(inventoryId);
   }
 
-  @Put('/cancel-or-timeput-pending')
+  @Put('/cancel-or-timeout-pending')
   async cancelPendingOrder() {
     const pendingOrder = await this.orderService.timeoutOrGetPendingOrder();
     if (pendingOrder) {
       await this.orderService.updateStatus(
         pendingOrder.id,
-        ORDER_STATUS.cancelled,
+        OrderStatus.CANCELLED,
       );
       this.emitOrderEvent(new OrderCancelledContract());
     }

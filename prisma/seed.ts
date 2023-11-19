@@ -6,24 +6,6 @@ const prisma = new PrismaClient();
 // CANCELLED, TIMEOUT,
 // INSUFFICIENT_COIN, INSUFFICIENT_CASH
 async function main() {
-  const orderStatusEnums = [
-    'PENDING',
-    'SUCCESS',
-    'CANCELLED',
-    'TIMEOUT',
-    'INSUFFICIENT_COIN',
-    'INSUFFICIENT_CASH',
-  ];
-  const orderStatusResponse = {};
-  for (let i = 0; i < orderStatusEnums.length; i++) {
-    const status = orderStatusEnums[i];
-    orderStatusResponse[status] = await prisma.orderStatus.upsert({
-      where: { status },
-      update: {},
-      create: { status },
-    });
-  }
-
   const inventoriesResponse = {};
   const inventories = [
     { name: 'Coke', price: 20, stock: 10, imageName: 'coke.png' },
@@ -41,10 +23,10 @@ async function main() {
 
   const fundStockResponse = {};
   const fundStocks = [
-    { fundType: FUND_TYPE.coin, stock: 100 },
-    { fundType: FUND_TYPE.cash, stock: 200 },
-    { fundType: FUND_TYPE.customerCoin, stock: 0 },
-    { fundType: FUND_TYPE.customerCash, stock: 0 },
+    { fundType: FUND_TYPE.Coin, stock: 100 },
+    { fundType: FUND_TYPE.Cash, stock: 200 },
+    { fundType: FUND_TYPE.CustomerCoin, stock: 0 },
+    { fundType: FUND_TYPE.CustomerCash, stock: 0 },
   ];
   for (let i = 0; i < fundStocks.length; i++) {
     const fundStock = fundStocks[i];
@@ -56,7 +38,6 @@ async function main() {
   }
 
   console.log('seed: ', {
-    orderStatusResponse,
     drinksResponse: inventoriesResponse,
     fundStockResponse,
   });
