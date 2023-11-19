@@ -5,7 +5,6 @@ import {
   Param,
   ConflictException,
   Put,
-  Get,
   Sse,
   MessageEvent,
 } from '@nestjs/common';
@@ -25,16 +24,6 @@ export class OrderController {
   @Sse('sse')
   sse(): Observable<MessageEvent> {
     return this.orderService.getEventObservable();
-  }
-
-  @Get('/debug/all')
-  async getAllOrders() {
-    return this.orderService.findAll();
-  }
-
-  @Get('/debug/:orderId')
-  async getOrder(@Param('orderId', ParseIntPipe) orderId: number) {
-    return this.orderService.getOrder(orderId);
   }
 
   @Post('/inventory/:inventoryId')

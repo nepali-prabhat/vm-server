@@ -1,21 +1,23 @@
 import { InventoryDto } from 'src/inventory/dto/inventory.dto';
 import { Change } from './change.dto';
 
+export type PurchaseSseContractType =
+  | 'PURCHASE_START'
+  | 'NO_PENDING_ORDER'
+  | 'OUT_OF_STOCK'
+  | 'INSUFFICIENT_FUND'
+  | 'OUT_OF_CASH'
+  | 'OUT_OF_COINS'
+  | 'PURCHASE_SUCCESS'
+  | 'REFUND_START'
+  | 'REFUND_SUCCESS'
+  | 'REFUND_FAILED'
+  | 'PURCHASE_UNEXPECTEDLY_FAILED';
+
 // INFO: Better to separate refund and purchase contracts to separate classes in the future
 export class PurchaseSseContracts {
   constructor(
-    public type:
-      | 'PURCHASE_START'
-      | 'NO_PENDING_ORDER'
-      | 'OUT_OF_STOCK'
-      | 'INSUFFICIENT_FUND'
-      | 'OUT_OF_CASH'
-      | 'OUT_OF_COINS'
-      | 'PURCHASE_SUCCESS'
-      | 'REFUND_START'
-      | 'REFUND_SUCCESS'
-      | 'REFUND_FAILED'
-      | 'PURCHASE_UNEXPECTEDLY_FAILED',
+    public type: PurchaseSseContractType,
     public change: Change,
     public message: string,
     public inventory?: InventoryDto,
