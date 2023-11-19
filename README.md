@@ -24,6 +24,7 @@ This nodejs server is used by a demo vending machine project. Client code repo i
 ### Running the server in development stage
 
 ```bash
+pnpm install
 # runs the database containers (dev-db and test-db)
 docker compose up -d
 # One time thing. This deploys prisma migrations and seeds dev-db database
