@@ -5,7 +5,7 @@ import {
   OrderStatus,
 } from './../constants';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClient } from '@prisma/client';
+import { OrderStatus, PrismaClient } from '@prisma/client';
 import { SseService } from 'src/sse/sse.service';
 import { OrderSseContracts } from './dto/order-sse-contracts.dto';
 import { differenceInSeconds, format } from 'date-fns';
@@ -20,14 +20,21 @@ export class OrderService extends SseService<OrderSseContracts> {
   }
 
   async findAll() {
-    const orders = await this.orderModel.findMany({});
+    const orders = await this.orderModel.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
     return orders;
   }
 
   async getPendingOrder() {
     const orders = await this.orderModel.findMany({
       where: {
-        orderStatus: ORDER_STATUS.pending,
+        status: OrderStatus.PENDING,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
       include: {
         inventory: true,
@@ -42,7 +49,7 @@ export class OrderService extends SseService<OrderSseContracts> {
       const hasTimedout = this.hasOrderTimedout(pendingOrder.createdAt);
       console.log('has timeout: ', hasTimedout);
       if (hasTimedout) {
-        await this.updateStatus(pendingOrder.id, ORDER_STATUS.timeout);
+        await this.updateStatus(pendingOrder.id, OrderStatus.TIMEOUT);
       } else {
         return pendingOrder;
       }
@@ -61,7 +68,7 @@ export class OrderService extends SseService<OrderSseContracts> {
     return this.orderModel.create({
       data: {
         inventory: { connect: { id: inventoryId } },
-        status: { connect: { status: ORDER_STATUS.pending } },
+        status: OrderStatus.PENDING,
       },
     });
   }
@@ -72,7 +79,7 @@ export class OrderService extends SseService<OrderSseContracts> {
         id: orderId,
       },
       data: {
-        status: { connect: { status } },
+        status,
       },
     });
   }
