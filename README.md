@@ -25,20 +25,16 @@ This nodejs server is used by a demo vending machine project. Client code repo i
 
 ```bash
 pnpm install
-```
-```bash
+
 # Runs the database containers in docker (runs both dev-db and test-db services)
 docker compose up
-```
-```bash
+
 # Generate prisma schemas (only required after fresh install)
 pnpm exec prisma generate
-```
-```bash
+
 # Deploy prisma migrations and seeds the dev-db database
 pnpm run db:migrate
-```
-```bash
+
 # Runs the server
 pnpm run start:dev
 ```
@@ -57,8 +53,7 @@ pnpm run db:reset
 ```bash
 # runs unit tests
 pnpm run test:unit
-```
-```bash
+
 # runs integration tests.
 pnpm run test:int
 ```
