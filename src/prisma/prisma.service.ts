@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { seed } from '../../prisma/seedFn';
 
 @Injectable()
 export class PrismaService
@@ -25,15 +26,19 @@ export class PrismaService
     await this.$disconnect();
   }
 
-  async cleanDatabase() {
+  // Be cautious: This is only to be used by tests.
+  async resetDatabase(shouldSeed = false) {
     if (process.env.NODE_ENV === 'production') return;
     const models = Reflect.ownKeys(this).filter(
       (key) => key[0] !== '_' && key[0] !== '$',
     );
-    return Promise.all(
+    await Promise.all(
       models.map((modelKey) => {
         return this[modelKey]?.deleteMany && this[modelKey]?.deleteMany();
       }),
     );
+    if (shouldSeed) {
+      await seed(this);
+    }
   }
 }

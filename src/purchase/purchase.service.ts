@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PrismaClient } from '@prisma/client';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
-import { CASH_UNIT, FundType } from 'src/constants';
+import { CASH_UNIT } from 'src/constants';
 import { Change } from './dto/change.dto';
 import { SseService } from 'src/sse/sse.service';
 import { PurchaseSseContracts } from './dto/purchase-sse-contracts.dto';
@@ -32,10 +32,11 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
       },
     });
   }
+
   calculateChange(
     inputMoney: number,
     price: number,
-    fundStock: Record<FundType, number>,
+    fundStock: { Cash: number; Coin: number },
   ) {
     const changeToReturn = inputMoney - price;
     return this.calculateChangeToReturn(changeToReturn, fundStock);
@@ -54,11 +55,12 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
   calculateChangeToReturn(
     changeToReturn: number,
     fundStock: { Cash: number; Coin: number },
+    cashUnit = CASH_UNIT,
   ) {
-    const cashChange = Math.floor(changeToReturn / CASH_UNIT);
-    const coinChange = changeToReturn % CASH_UNIT;
+    const cashChange = Math.floor(changeToReturn / cashUnit);
+    const coinChange = changeToReturn % cashUnit;
 
-    const change = new Change(coinChange, cashChange * CASH_UNIT);
+    const change = new Change(coinChange, cashChange * cashUnit);
 
     // fallback
     if (fundStock.Cash < change.cash) {

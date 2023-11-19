@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FUND_TYPE, FundType } from 'src/constants';
+import { FundStockType } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -7,7 +7,11 @@ export class FundStockService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.fundStock.findMany();
+    return this.prisma.fundStock.findMany({
+      orderBy: {
+        fundType: 'asc',
+      },
+    });
   }
 
   async getFundStock() {
@@ -17,7 +21,7 @@ export class FundStockService {
         ...agg,
         [fundStock.fundType]: fundStock.stock,
       }),
-      {} as Record<FundType, number>,
+      {} as Record<FundStockType, number>,
     );
   }
 
@@ -26,23 +30,25 @@ export class FundStockService {
       where: {
         OR: [
           {
-            fundType: FUND_TYPE.CustomerCash,
+            fundType: FundStockType.CustomerCash,
           },
           {
-            fundType: FUND_TYPE.CustomerCoin,
+            fundType: FundStockType.CustomerCoin,
           },
         ],
       },
     });
     return {
       Cash:
-        response.find((r) => r.fundType === FUND_TYPE.CustomerCash)?.stock || 0,
+        response.find((r) => r.fundType === FundStockType.CustomerCash)
+          ?.stock || 0,
       Coin:
-        response.find((r) => r.fundType === FUND_TYPE.CustomerCoin)?.stock || 0,
+        response.find((r) => r.fundType === FundStockType.CustomerCoin)
+          ?.stock || 0,
     };
   }
 
-  async updateStock(fundType: FundType, stock: number) {
+  async updateStock(fundType: FundStockType, stock: number) {
     return await this.prisma.fundStock.update({
       where: {
         fundType,
@@ -53,11 +59,11 @@ export class FundStockService {
     });
   }
 
-  async updateGivenFundStock(updates: Partial<Record<FundType, number>>) {
+  async updateGivenFundStock(updates: Partial<Record<FundStockType, number>>) {
     const updatePromises = Object.keys(updates).map((fundType) =>
       this.prisma.fundStock.update({
         where: {
-          fundType,
+          fundType: FundStockType[fundType],
         },
         data: {
           stock: Math.max(updates[fundType], 0),

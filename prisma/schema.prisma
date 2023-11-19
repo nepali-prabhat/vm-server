@@ -20,13 +20,20 @@ model Inventory {
 }
 
 model FundStock {
-  fundType String @id
+  fundType FundStockType @id
   stock    Float
+}
+
+enum FundStockType {
+  Cash
+  Coin
+  CustomerCash
+  CustomerCoin
 }
 
 model Order {
   id          Int         @id @default(autoincrement())
-  inventory   Inventory   @relation(fields: [inventoryId], references: [id])
+  inventory   Inventory   @relation(fields: [inventoryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   inventoryId Int
   status      OrderStatus @default(PENDING)
 
@@ -48,7 +55,7 @@ enum OrderStatus {
 
 model Purchase {
   id      Int   @id @default(autoincrement())
-  order   Order @relation(fields: [orderId], references: [id])
+  order   Order @relation(fields: [orderId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   orderId Int   @unique
   coins   Int?  @default(0)
   cash    Int?  @default(0)
