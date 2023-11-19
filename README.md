@@ -58,5 +58,5 @@ Note, running integration and e2e tests does `docker compose up` by default.
 
 - You can look at the `/prisma/seed.ts` file to add new drinks or update stock during the database seeding.
 - Images for the drinks are served from the `/public` folder.
-- There is no 100% test coverage. Only purchase module is tested.
+- There is no 100% test coverage. Only the purchase module is tested.
 - As of right now, docker compose doesn't read env variables and postgres environment variables are hard coded.
