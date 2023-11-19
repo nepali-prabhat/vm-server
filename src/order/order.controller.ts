@@ -6,28 +6,25 @@ import {
   ConflictException,
   Put,
   Get,
-  NotFoundException,
+  Sse,
+  MessageEvent,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { ORDER_STATUS } from 'src/constants';
 import {
   OrderCancelledContract,
   OrderPendingContract,
   OrderSseContracts,
 } from './dto/order-sse-contracts.dto';
+import { Observable } from 'rxjs';
 import { OrderStatus } from '@prisma/client';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Get('/debug/pending')
-  async getPendingOrder() {
-    const pending = await this.orderService.getPendingOrder();
-    if (!pending) {
-      throw new NotFoundException();
-    }
-    return pending;
+  @Sse('sse')
+  sse(): Observable<MessageEvent> {
+    return this.orderService.getEventObservable();
   }
 
   @Get('/debug/all')
@@ -47,7 +44,6 @@ export class OrderController {
       throw new ConflictException();
     }
     this.emitOrderEvent(new OrderPendingContract());
-    // TODO: Good to have feature is to set cron job to send timeout error
     return this.orderService.createOrder(inventoryId);
   }
 
