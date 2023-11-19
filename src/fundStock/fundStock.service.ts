@@ -7,7 +7,11 @@ export class FundStockService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.fundStock.findMany();
+    return this.prisma.fundStock.findMany({
+      orderBy: {
+        fundType: 'asc',
+      },
+    });
   }
 
   async getFundStock() {
