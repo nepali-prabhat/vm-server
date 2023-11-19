@@ -32,7 +32,6 @@ export class PrismaService
     );
     return Promise.all(
       models.map((modelKey) => {
-        console.log('model key: ', modelKey);
         return this[modelKey]?.deleteMany && this[modelKey]?.deleteMany();
       }),
     );

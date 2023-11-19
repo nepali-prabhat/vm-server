@@ -1,6 +1,7 @@
 import { InventoryDto } from 'src/inventory/dto/inventory.dto';
 import { Change } from './change.dto';
 
+// INFO: Better to separate refund and purchase contracts to separate classes in the future
 export class PurchaseSseContracts {
   constructor(
     public type:
@@ -11,6 +12,9 @@ export class PurchaseSseContracts {
       | 'OUT_OF_CASH'
       | 'OUT_OF_COINS'
       | 'PURCHASE_SUCCESS'
+      | 'REFUND_START'
+      | 'REFUND_SUCCESS'
+      | 'REFUND_FAILED'
       | 'PURCHASE_UNEXPECTEDLY_FAILED',
     public change: Change,
     public message: string,
@@ -72,6 +76,33 @@ export class PurchaseSuccessContract extends PurchaseSseContracts {
       'PURCHASE_SUCCESS',
       change,
       'Your purchase successful. Collect your items from the dispenser',
+      inventory,
+    );
+  }
+}
+
+export class RefundStartContract extends PurchaseSseContracts {
+  constructor() {
+    super('REFUND_START', new Change(0, 0), 'Refund process started');
+  }
+}
+
+export class RefundSuccessContract extends PurchaseSseContracts {
+  constructor(change: Change) {
+    super(
+      'REFUND_SUCCESS',
+      change,
+      'Refund successful. Collect your change from the dispenser',
+    );
+  }
+}
+
+export class RefundFailedContract extends PurchaseSseContracts {
+  constructor(inventory: InventoryDto) {
+    super(
+      'REFUND_FAILED',
+      new Change(0, 0),
+      'Refund Failed. Collect your item from the dispenser',
       inventory,
     );
   }
