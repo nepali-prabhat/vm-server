@@ -25,9 +25,11 @@ This nodejs server is used by a demo vending machine project. Client code repo i
 
 ```bash
 pnpm install
-# runs the database containers (dev-db and test-db)
-docker compose up -d
-# One time thing. This deploys prisma migrations and seeds dev-db database
+# runs the database containers in docker (runs both dev-db and test-db services)
+docker compose up # Add -d flag if you prefer that
+# generate prisma schemas after fresh install
+pnpm exec prisma generate
+# This deploys prisma migrations and seeds the dev-db database
 pnpm run db:migrate
 # runs the server
 pnpm run start:dev
@@ -53,7 +55,7 @@ pnpm run test:int
 pnpm run test:e2e
 ```
 
-Note, running integration and e2e tests does `docker compose up` by default.
+Note, integration and e2e tests run `docker compose up` at the start by default. So, you can simultaneously run the server.
 
 ## Footnotes
 
