@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FundType } from 'src/constants';
+import { FUND_TYPE, FundType } from 'src/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -21,6 +21,27 @@ export class FundStockService {
     );
   }
 
+  async getCustomerFundStock() {
+    const response = await this.prisma.fundStock.findMany({
+      where: {
+        OR: [
+          {
+            fundType: FUND_TYPE.CustomerCash,
+          },
+          {
+            fundType: FUND_TYPE.CustomerCoin,
+          },
+        ],
+      },
+    });
+    return {
+      Cash:
+        response.find((r) => r.fundType === FUND_TYPE.CustomerCash)?.stock || 0,
+      Coin:
+        response.find((r) => r.fundType === FUND_TYPE.CustomerCoin)?.stock || 0,
+    };
+  }
+
   async updateStock(fundType: FundType, stock: number) {
     return await this.prisma.fundStock.update({
       where: {
@@ -32,16 +53,17 @@ export class FundStockService {
     });
   }
 
-  async updateGivenFundStock(updates: Record<FundType, number>) {
-    for (const fundType of Object.keys(updates)) {
-      await this.prisma.fundStock.update({
+  async updateGivenFundStock(updates: Partial<Record<FundType, number>>) {
+    const updatePromises = Object.keys(updates).map((fundType) =>
+      this.prisma.fundStock.update({
         where: {
           fundType,
         },
         data: {
-          stock: updates[fundType],
+          stock: Math.max(updates[fundType], 0),
         },
-      });
-    }
+      }),
+    );
+    await Promise.all(updatePromises);
   }
 }

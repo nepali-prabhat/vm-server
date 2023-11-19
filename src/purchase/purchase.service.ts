@@ -10,19 +10,11 @@ import { PurchaseSseContracts } from './dto/purchase-sse-contracts.dto';
 @Injectable()
 export class PurchaseService extends SseService<PurchaseSseContracts> {
   private purchaseModel: PrismaClient['purchase'];
-  // private eventSubject = new Subject<MessageEvent>();
 
-  constructor(private prisma: PrismaService) {
+  constructor(prisma: PrismaService) {
     super();
     this.purchaseModel = prisma.purchase;
   }
-
-  // getEventObservable() {
-  //   return this.eventSubject.asObservable();
-  // }
-  // emitEvent(data: PurchaseSseContracts) {
-  //   this.eventSubject.next({ data });
-  // }
 
   async create(orderId: number, dto: CreatePurchaseDto) {
     return this.purchaseModel.create({
@@ -40,24 +32,41 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
       },
     });
   }
-
   calculateChange(
     inputMoney: number,
     price: number,
     fundStock: Record<FundType, number>,
   ) {
-    const totalChange = inputMoney - price;
-    const cashChange = Math.floor(totalChange / CASH_UNIT);
-    const coinChange = totalChange % CASH_UNIT;
+    const changeToReturn = inputMoney - price;
+    return this.calculateChangeToReturn(changeToReturn, fundStock);
+  }
+
+  calculateRefund(
+    price: number,
+    fundStock: {
+      Cash: number;
+      Coin: number;
+    },
+  ) {
+    return this.calculateChangeToReturn(price, fundStock);
+  }
+
+  calculateChangeToReturn(
+    changeToReturn: number,
+    fundStock: { Cash: number; Coin: number },
+  ) {
+    const cashChange = Math.floor(changeToReturn / CASH_UNIT);
+    const coinChange = changeToReturn % CASH_UNIT;
 
     const change = new Change(coinChange, cashChange * CASH_UNIT);
 
-    if (fundStock.cash < change.cash) {
+    // fallback
+    if (fundStock.Cash < change.cash) {
       // check if by giving all the cash, we have enough coins to return the change
       const totalMoneyToReturn = change.getTotalChange();
-      const coinsRequired = totalMoneyToReturn - fundStock.cash;
-      if (fundStock.coin >= coinsRequired) {
-        return new Change(coinsRequired, fundStock.cash);
+      const coinsRequired = totalMoneyToReturn - fundStock.Cash;
+      if (fundStock.Coin >= coinsRequired) {
+        return new Change(coinsRequired, fundStock.Cash);
       }
     }
 

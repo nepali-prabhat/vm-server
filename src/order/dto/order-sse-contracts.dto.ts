@@ -1,6 +1,10 @@
 export class OrderSseContracts {
   constructor(
-    public type: 'ORDER_PENDING' | 'ORDER_CANCELLED' | 'ORDER_TIMEOUT',
+    public type:
+      | 'ORDER_PENDING'
+      | 'ORDER_CANCELLED'
+      | 'ORDER_TIMEOUT'
+      | 'ORDER_FULFILLED',
   ) {}
 }
 
@@ -19,5 +23,11 @@ export class OrderCancelledContract extends OrderSseContracts {
 export class OrderTimeoutContract extends OrderSseContracts {
   constructor() {
     super('ORDER_TIMEOUT');
+  }
+}
+
+export class OrderFulfilledContract extends OrderSseContracts {
+  constructor() {
+    super('ORDER_FULFILLED');
   }
 }

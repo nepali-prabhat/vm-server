@@ -6,7 +6,11 @@ export class InventoryService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.inventory.findMany();
+    return this.prisma.inventory.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    });
   }
 
   async find(id: number) {

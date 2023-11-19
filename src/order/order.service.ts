@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import {
-  ORDER_STATUS,
-  ORDER_TIMEOUT_IN_SECONDS,
-  OrderStatus,
-} from './../constants';
+import { ORDER_TIMEOUT_IN_SECONDS } from './../constants';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderStatus, PrismaClient } from '@prisma/client';
 import { SseService } from 'src/sse/sse.service';
-import { OrderSseContracts } from './dto/order-sse-contracts.dto';
-import { differenceInSeconds, format } from 'date-fns';
+import {
+  OrderSseContracts,
+  OrderTimeoutContract,
+} from './dto/order-sse-contracts.dto';
+import { differenceInSeconds } from 'date-fns';
 
 @Injectable()
 export class OrderService extends SseService<OrderSseContracts> {
@@ -47,9 +46,9 @@ export class OrderService extends SseService<OrderSseContracts> {
     const pendingOrder = await this.getPendingOrder();
     if (pendingOrder) {
       const hasTimedout = this.hasOrderTimedout(pendingOrder.createdAt);
-      console.log('has timeout: ', hasTimedout);
       if (hasTimedout) {
         await this.updateStatus(pendingOrder.id, OrderStatus.TIMEOUT);
+        this.emitEvent(new OrderTimeoutContract());
       } else {
         return pendingOrder;
       }
