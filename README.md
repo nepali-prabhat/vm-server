@@ -25,13 +25,21 @@ This nodejs server is used by a demo vending machine project. Client code repo i
 
 ```bash
 pnpm install
-# runs the database containers in docker (runs both dev-db and test-db services)
-docker compose up # Add -d flag if you prefer that
-# generate prisma schemas after fresh install
+```
+```bash
+# Runs the database containers in docker (runs both dev-db and test-db services)
+docker compose up
+```
+```bash
+# Generate prisma schemas (only required after fresh install)
 pnpm exec prisma generate
-# This deploys prisma migrations and seeds the dev-db database
+```
+```bash
+# Deploy prisma migrations and seeds the dev-db database
 pnpm run db:migrate
-# runs the server
+```
+```bash
+# Runs the server
 pnpm run start:dev
 ```
 
@@ -40,7 +48,7 @@ And done! The server should be up.
 You can run the following command to reset the database to its original state.
 
 ```bash
-# resets(deploys and seeds) the dev-db database to initial state
+# Resets(deploys and seeds) the dev-db database to initial state
 pnpm run db:reset
 ```
 
@@ -49,8 +57,12 @@ pnpm run db:reset
 ```bash
 # runs unit tests
 pnpm run test:unit
+```
+```bash
 # runs integration tests.
 pnpm run test:int
+```
+```bash
 # runs e2e tests.
 pnpm run test:e2e
 ```
