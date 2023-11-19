@@ -16,7 +16,6 @@ import {
   createPurchaseDtoSchema,
 } from './dto/create-purchase.dto';
 import { OrderService } from 'src/order/order.service';
-import { FundType } from 'src/constants';
 import { FundStockService } from 'src/fundStock/fundStock.service';
 import { Observable } from 'rxjs';
 import { Change } from './dto/change.dto';
@@ -39,7 +38,7 @@ import {
   OrderCancelledContract,
   OrderFulfilledContract,
 } from 'src/order/dto/order-sse-contracts.dto';
-import { OrderStatus } from '@prisma/client';
+import { FundStockType, OrderStatus } from '@prisma/client';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -198,7 +197,7 @@ export class PurchaseController {
   }
 
   private async handleFundStockValidation(
-    fundStock: Pick<Record<FundType, number>, 'Cash' | 'Coin'>,
+    fundStock: Pick<Record<FundStockType, number>, 'Cash' | 'Coin'>,
     change: Change,
     orderId?: number,
     inputChange?: Change,
@@ -218,7 +217,7 @@ export class PurchaseController {
   }
 
   private async handleCashStockValidation(
-    fundStock: Pick<Record<FundType, number>, 'Cash' | 'Coin'>,
+    fundStock: Pick<Record<FundStockType, number>, 'Cash' | 'Coin'>,
     change: Change,
     orderId?: number,
     inputChange?: Change,
@@ -238,7 +237,7 @@ export class PurchaseController {
   }
 
   private async handleCoinStockValidation(
-    fundStock: Pick<Record<FundType, number>, 'Cash' | 'Coin'>,
+    fundStock: Pick<Record<FundStockType, number>, 'Cash' | 'Coin'>,
     change: Change,
     orderId?: number,
     inputChange?: Change,

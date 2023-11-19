@@ -20,8 +20,15 @@ model Inventory {
 }
 
 model FundStock {
-  fundType String @id
+  fundType FundStockType @id
   stock    Float
+}
+
+enum FundStockType {
+  Cash
+  Coin
+  CustomerCash
+  CustomerCoin
 }
 
 model Order {

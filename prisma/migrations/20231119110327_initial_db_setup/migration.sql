@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "FundStockType" AS ENUM ('Cash', 'Coin', 'CustomerCash', 'CustomerCoin');
+
+-- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'SUCCESS', 'CANCELLED', 'TIMEOUT', 'OUT_OF_COINS', 'OUT_OF_CASH', 'OUT_OF_STOCK');
 
 -- CreateTable
@@ -14,7 +17,7 @@ CREATE TABLE "Inventory" (
 
 -- CreateTable
 CREATE TABLE "FundStock" (
-    "fundType" TEXT NOT NULL,
+    "fundType" "FundStockType" NOT NULL,
     "stock" DOUBLE PRECISION NOT NULL,
 
     CONSTRAINT "FundStock_pkey" PRIMARY KEY ("fundType")

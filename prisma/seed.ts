@@ -1,17 +1,20 @@
-import { FUND_TYPE } from './../src/constants';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, FundStockType } from '@prisma/client';
 const prisma = new PrismaClient();
 
-// PENDING, SUCCESS,
-// CANCELLED, TIMEOUT,
-// INSUFFICIENT_COIN, INSUFFICIENT_CASH
+const inventories = [
+  { name: 'Coke', price: 20, stock: 10, imageName: 'coke.png' },
+  { name: 'Pepsi', price: 25, stock: 10, imageName: 'pepsi.png' },
+  { name: 'Dew', price: 30, stock: 10, imageName: 'dew.png' },
+];
+const fundStocks = [
+  { fundType: FundStockType.Coin, stock: 100 },
+  { fundType: FundStockType.Cash, stock: 200 },
+  { fundType: FundStockType.CustomerCoin, stock: 0 },
+  { fundType: FundStockType.CustomerCash, stock: 0 },
+];
+
 async function main() {
   const inventoriesResponse = {};
-  const inventories = [
-    { name: 'Coke', price: 20, stock: 10, imageName: 'coke.png' },
-    { name: 'Pepsi', price: 25, stock: 10, imageName: 'pepsi.png' },
-    { name: 'Dew', price: 30, stock: 10, imageName: 'dew.png' },
-  ];
   for (let i = 0; i < inventories.length; i++) {
     const inventory = inventories[i];
     inventoriesResponse[inventory.name] = await prisma.inventory.upsert({
@@ -22,12 +25,6 @@ async function main() {
   }
 
   const fundStockResponse = {};
-  const fundStocks = [
-    { fundType: FUND_TYPE.Coin, stock: 100 },
-    { fundType: FUND_TYPE.Cash, stock: 200 },
-    { fundType: FUND_TYPE.CustomerCoin, stock: 0 },
-    { fundType: FUND_TYPE.CustomerCash, stock: 0 },
-  ];
   for (let i = 0; i < fundStocks.length; i++) {
     const fundStock = fundStocks[i];
     fundStockResponse[fundStock.fundType] = await prisma.fundStock.upsert({

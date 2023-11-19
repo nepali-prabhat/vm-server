@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PrismaClient } from '@prisma/client';
+import { FundStockType, PrismaClient } from '@prisma/client';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
-import { CASH_UNIT, FundType } from 'src/constants';
+import { CASH_UNIT } from 'src/constants';
 import { Change } from './dto/change.dto';
 import { SseService } from 'src/sse/sse.service';
 import { PurchaseSseContracts } from './dto/purchase-sse-contracts.dto';
@@ -35,7 +35,7 @@ export class PurchaseService extends SseService<PurchaseSseContracts> {
   calculateChange(
     inputMoney: number,
     price: number,
-    fundStock: Record<FundType, number>,
+    fundStock: Record<FundStockType, number>,
   ) {
     const changeToReturn = inputMoney - price;
     return this.calculateChangeToReturn(changeToReturn, fundStock);
